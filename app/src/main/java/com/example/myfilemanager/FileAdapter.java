@@ -16,6 +16,9 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder>{
 
@@ -40,18 +43,25 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder>{
         if (selectedFile.isDirectory()) {
             holder.iconItem.setImageResource(R.drawable.ic_baseline_folder_24);
         } else {
-            holder.iconItem.setImageResource(R.drawable.ic_baseline_insert_drive_file_24);
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toURI().toString());
+            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+            if (mimeType != null && mimeType.startsWith("image/")) {
+                Bitmap bitmap = BitmapFactory.decodeFile(selectedFile.getAbsolutePath());
+                holder.iconItem.setImageBitmap(bitmap);
+            } else {
+                holder.iconItem.setImageResource(R.drawable.ic_baseline_insert_drive_file_24);
+            }
+
+            // Set file's size.
             String sizeText = String.valueOf(selectedFile.length()) + " B";
             holder.sizeInfo.setText(sizeText);
-        }
 
-        String fileExtension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toURI().toString());
-        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-
-        if (mimeType != null && mimeType.startsWith("image/")) {
-            Bitmap bitmap = BitmapFactory.decodeFile(selectedFile.getAbsolutePath());
-            holder.iconItem.setImageBitmap(bitmap);
-//            holder.imageItem.setVisibility(View.VISIBLE);
+            // Set Date info for file.
+            long createdTime = selectedFile.lastModified();
+            Date createdDate = new Date(createdTime);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+            String createdDateString = dateFormat.format(createdDate);
+            holder.dataInfo.setText(createdDateString);
         }
 
 
@@ -138,13 +148,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder>{
         TextView textView;
         ImageView iconItem;
         TextView sizeInfo;
+        TextView dataInfo;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            imageItem = itemView.findViewById(R.id.image_item);
             textView = itemView.findViewById(R.id.file_name);
             iconItem = itemView.findViewById(R.id.icon_item);
             sizeInfo = itemView.findViewById(R.id.size_info);
+            dataInfo = itemView.findViewById(R.id.data_info);
         }
     }
 }
