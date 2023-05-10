@@ -20,3 +20,5 @@ Launch the MyFileManager application.
 ![image](https://github.com/DeadRick/FileManagerTaskVK/assets/39325834/74c8d4c5-6f5d-4864-978e-16e3d2ba6b40)
 ![image](https://github.com/DeadRick/FileManagerTaskVK/assets/39325834/21c2f378-3337-4efc-940f-0299c23de02e)
 ![image](https://github.com/DeadRick/FileManagerTaskVK/assets/39325834/a135017f-4f3a-47ac-ad39-e7d31474d40c)
+![image](https://github.com/DeadRick/FileManagerTaskVK/assets/39325834/0532bfec-e8a4-4c2b-90dc-685e783f7282)
+
