@@ -6,4 +6,7 @@
         android:id="@+id/sort_by_size"
         android:title="Sort by size" />
 
+    <item android:id="@+id/sort_by_extension"
+        android:title="Sort by extension" />
+
 </menu>
