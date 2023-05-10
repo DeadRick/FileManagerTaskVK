@@ -1,10 +1,17 @@
 package com.example.myfilemanager;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -16,18 +23,21 @@ import java.util.List;
 
 public class FileListActivity extends AppCompatActivity {
 
+    private RecyclerView recyclerView;
+    private File[] allFiles;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         TextView filesInfo = findViewById(R.id.not_found_files_text);
 
         String path = getIntent().getStringExtra("path");
 
         File root = new File(path);
-        File[] allFiles = root.listFiles();
+        allFiles = root.listFiles();
 
         if (allFiles.length == 0 || allFiles == null) {
             filesInfo.setVisibility(View.VISIBLE);
@@ -39,6 +49,29 @@ public class FileListActivity extends AppCompatActivity {
         filesInfo.setVisibility(recyclerView.INVISIBLE);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new FileAdapter(getApplicationContext(), allFiles));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.sort_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.sort_by_name) {
+            Arrays.sort(allFiles, new FileNameComparator());
+        } else if (id == R.id.sort_by_size) {
+            Arrays.sort(allFiles, new FileSizeComparator());
+        }
+
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new FileAdapter(getApplicationContext(), allFiles));
+        return super.onOptionsItemSelected(item);
     }
 
     public class FileNameComparator implements Comparator<File> {
