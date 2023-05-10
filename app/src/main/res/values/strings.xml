@@ -2,5 +2,5 @@
     <string name="app_name">MyFileManager</string>
     <string name="fileManagerTitle">File Manager</string>
     <string name="open_storage_text">Open storage</string>
-    <string name="files_not_found">There are no files in storage!</string>
+    <string name="files_not_found">There are no files in this directory!</string>
 </resources>

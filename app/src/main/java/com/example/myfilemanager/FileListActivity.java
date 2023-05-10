@@ -7,8 +7,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +28,7 @@ import java.util.List;
 
 public class FileListActivity extends AppCompatActivity {
 
+    private FileDatabaseHelper dbHelper;
     private RecyclerView recyclerView;
     private File[] allFiles;
     private boolean isExtensionSort = false;
@@ -34,6 +39,9 @@ public class FileListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
+
+        dbHelper = new FileDatabaseHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         recyclerView = findViewById(R.id.recycler_view);
         TextView filesInfo = findViewById(R.id.not_found_files_text);
@@ -49,10 +57,33 @@ public class FileListActivity extends AppCompatActivity {
         }
 
         Arrays.sort(allFiles, new FileNameComparatorAscending());
-
         filesInfo.setVisibility(recyclerView.INVISIBLE);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new FileAdapter(getApplicationContext(), allFiles));
+
+        FileHasher fileHasher = new FileHasher();
+
+        for (File file : allFiles) {
+            if (file.isFile()) {
+                String name = file.getName();
+                String hash = null;
+                try {
+                    hash = fileHasher.hashFile(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+                long lastModified = file.lastModified();
+
+                ContentValues values = new ContentValues();
+                values.put(FileDatabaseHelper.COLUMN_NAME, name);
+                values.put(FileDatabaseHelper.COLUMN_HASH, hash);
+                values.put(FileDatabaseHelper.COLUMN_LAST_MODIFIED, lastModified);
+
+                db.insert(FileDatabaseHelper.TABLE_NAME, null, values);
+            }
+        }
     }
 
     @Override

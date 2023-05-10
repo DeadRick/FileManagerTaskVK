@@ -42,6 +42,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder>{
 
         if (selectedFile.isDirectory()) {
             holder.iconItem.setImageResource(R.drawable.ic_baseline_folder_24);
+            holder.sizeInfo.setText("Directory");
         } else {
             String fileExtension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toURI().toString());
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
