@@ -1,8 +1,11 @@
 package com.example.myfilemanager;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.io.File;
 
 public class FileDatabaseHelper extends SQLiteOpenHelper {
 
@@ -32,5 +35,19 @@ public class FileDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
+    }
+
+    public String getHashForFile(File fileName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COLUMN_HASH},
+                COLUMN_NAME + "=?", new String[]{fileName.getName()}, null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            String hash = cursor.getString(0);
+            cursor.close();
+            return hash;
+        } else {
+            return null;
+        }
     }
 }

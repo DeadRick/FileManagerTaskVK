@@ -2,6 +2,7 @@ package com.example.myfilemanager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -16,6 +17,8 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -44,6 +47,22 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder>{
             holder.iconItem.setImageResource(R.drawable.ic_baseline_folder_24);
             holder.sizeInfo.setText("Directory");
         } else {
+            FileDatabaseHelper helperDb = new FileDatabaseHelper(context);
+            String hash = helperDb.getHashForFile(selectedFile);
+            if (hash != null) {
+                String newHash = null;
+                try {
+                    newHash = FileHasher.hashFile(selectedFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+                if (hash.equals(newHash)) {
+                    holder.textView.setText(selectedFile.getName() + " (MODIFIED HASH!)");
+                }
+            }
+
             String fileExtension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toURI().toString());
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
             if (mimeType != null && mimeType.startsWith("image/")) {
@@ -63,6 +82,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder>{
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
             String createdDateString = dateFormat.format(createdDate);
             holder.dataInfo.setText(createdDateString);
+
+
         }
 
 
